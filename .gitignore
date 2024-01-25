@@ -1,0 +1,5 @@
+# Ignore server data
+.wg-easy
+
+# Ignore enviroment file
+.env
