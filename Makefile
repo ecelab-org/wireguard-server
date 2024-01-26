@@ -5,6 +5,10 @@ all: run fix-permissions
 
 run: FORCE
 	docker compose up --detach --wait
+	@echo
+	@echo "Initializing containers..."
+	@echo
+	@sleep 4
 	docker compose logs
 
 debug: FORCE
