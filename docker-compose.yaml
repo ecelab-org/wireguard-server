@@ -6,6 +6,10 @@ services:
     container_name: wireguard
     cap_add:
       - NET_ADMIN
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - PEERS=1
     volumes:
       - ./data/config:/config
     ports:
@@ -16,18 +20,26 @@ services:
     sysctls:
       - net.ipv4.ip_forward=1
       - net.ipv4.conf.all.src_valid_mark=1
+    restart: unless-stopped
+    healthcheck:
+      test: stat /etc/passwd || exit 1
+      interval: 20s
+      timeout: 60s
+      start_period: 60s
 
 
   wireguard-ui:
     image: ngoduykhanh/wireguard-ui:latest
     container_name: wireguard-ui
     depends_on:
-      - wireguard
+      wireguard:
+        condition: service_healthy
     cap_add:
       - NET_ADMIN
     # use the network of the 'wireguard' service. this enables to show active clients in the status page
     network_mode: service:wireguard
     environment:
+      - WGUI_CONFIG_FILE_PATH=/etc/wireguard/wg_confs/wg0.conf
       - SENDGRID_API_KEY
       - EMAIL_FROM_ADDRESS
       - EMAIL_FROM_NAME
